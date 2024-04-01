@@ -1,0 +1,658 @@
+#include <bits/stdc++.h>
+#include <fstream>
+#include <cstring>
+#include <ctime>
+
+using namespace std;
+
+/** \brief
+ *
+ * \param
+ * \param
+ * \return
+ *
+ */
+string school_name, teacher_user_name, teacher_subject;
+int student_count, teacher_count;
+
+#ifdef __linux__
+    void clear_screen() {
+        system("clear");
+    }
+#endif
+
+#ifdef _WIN32
+    void clear_screen() {
+        system("cls");
+    }
+#endif
+
+struct student {
+    int student_id;
+    string student_name;
+    string father_name;
+    string mother_name;
+    string dob;
+    string mobile_no;
+    string guide_teacher;
+    string admitted_class;
+    string admitted_date;
+};
+
+struct teacher {
+    int teacher_id;
+    string teacher_name;
+    string mobile_no;
+    string dob;
+    string subject;
+    string joining_date;
+};
+
+struct result {
+    int student_id;
+    string student_name;
+    string grade_point;
+    string subject;
+    string guide_teacher;
+};
+
+void get_total_number_of_student() {
+    string file_name = school_name + "_student_list.txt";
+    ifstream fptr(file_name);
+    if(fptr.fail() || student_count) return;
+    string line;
+    while(getline(fptr, line))
+        student_count++;
+    fptr.close();
+}
+
+void get_total_number_of_teacher() {
+    string file_name = school_name + "_teacher_list.txt";
+    ifstream fptr(file_name);
+    if(fptr.fail() || teacher_count) return;
+    string line;
+    while(getline(fptr, line))
+        teacher_count++;
+    fptr.close();
+}
+
+void print_student(vector<student> &student_list) {
+    printf("%-20s%-20s%-20s%-16s%-14s%-6s%-20s%-14s\n", "Student's Name", "Father's Name", "Mother's Name", "Date of Birth", "Mobile No", "Class", "Guide Teacher", "Admission Date");
+    string s(130, '-');
+    cout << s << '\n';
+    for(auto &stdnt : student_list) {
+    printf("%-20s%-20s%-20s%-16s%-14s%-6s%-20s%-14s\n", stdnt.student_name.c_str(), stdnt.father_name.c_str(), stdnt.mother_name.c_str(), stdnt.dob.c_str(), stdnt.mobile_no.c_str(), stdnt.admitted_class.c_str(), stdnt.guide_teacher.c_str(), stdnt.admitted_date.c_str());
+        cout << s << '\n';
+    }
+}
+
+void print_teacher(vector<teacher> &teacher_list) {
+    printf("%-20s%-16s%-14s%-20s%-14s\n", "Teacher's Name", "Date of Birth", "Mobile No", "Subject", "Joining Date");
+    string s(84, '-');
+    cout << s << '\n';
+    for(auto &tchr : teacher_list) {
+    printf("%-20s%-16s%-14s%-20s%-14s\n", tchr.teacher_name.c_str(), tchr.dob.c_str(), tchr.mobile_no.c_str(), tchr.subject.c_str(), tchr.joining_date.c_str());
+        cout << s << '\n';
+    }
+}
+
+string get_date() {
+    time_t now = time(0);
+    tm* ltm = localtime(&now);
+    string y = to_string(1900 + ltm->tm_year), m, d;
+    if((1 + ltm->tm_mon) < 10)
+        m = "0" + to_string(1 + ltm->tm_mon);
+    else
+        m = to_string(1 + ltm->tm_mon);
+    if(ltm->tm_mday < 10)
+        d = "0" + to_string(ltm->tm_mday);
+    else
+        d = to_string(ltm->tm_mday);
+    return d + "-" + m + "-" + y;
+}
+
+int show_student_list(vector<student> &student_list) {
+    string filename = school_name + "_student_list.txt";
+    ifstream fptr(filename);
+    if(fptr.fail())
+        return 0;
+
+    string line;
+    int cnt = 0;
+    while (getline(fptr, line)) {
+        string tmp;
+        for(int i = 0, j = 0; i < line.length(); i++) {
+            if(line[i] == ' ' || line[i] == '\n') {
+                switch(j) {
+                    case 0:
+                        student_list[cnt].student_id = stoi(tmp);
+                        break;
+                    case 1:
+                        student_list[cnt].student_name = tmp;
+                        break;
+                    case 2:
+                        student_list[cnt].father_name = tmp;
+                        break;
+                    case 3:
+                        student_list[cnt].mother_name = tmp;
+                        break;
+                    case 4:
+                        student_list[cnt].dob = tmp;
+                        break;
+                    case 5:
+                        student_list[cnt].mobile_no = tmp;
+                        break;
+                    case 6:
+                        student_list[cnt].admitted_class = tmp;
+                        break;
+                    case 7:
+                        student_list[cnt].guide_teacher = tmp;
+                        break;
+                }
+                j++; tmp.clear();
+            }
+            else tmp.push_back(line[i]);
+            if(i == line.length() - 1)
+                student_list[cnt].admitted_date = tmp;
+        }
+        cnt++;
+    }
+    fptr.close();
+    return 1;
+}
+
+int show_teacher_list(vector<teacher> &teacher_list) {
+
+    ifstream fptr(school_name + "_teacher_list.txt");
+    if(fptr.fail())
+        return 0;
+
+    string line;
+    int cnt = 0;
+    while (getline(fptr, line)) {
+        string tmp;
+        for(int i = 0, j = 0; i < line.length(); i++) {
+            if(line[i] == ' ' || line[i] == '\n') {
+                switch(j) {
+                    case 0:
+                        teacher_list[cnt].teacher_id = stoi(tmp);
+                        break;
+                    case 1:
+                        teacher_list[cnt].teacher_name = tmp;
+                        break;
+                    case 2:
+                        teacher_list[cnt].dob = tmp;
+                        break;
+                    case 3:
+                        teacher_list[cnt].mobile_no = tmp;
+                        break;
+                    case 4:
+                        teacher_list[cnt].subject = tmp;
+                }
+                j++; tmp.clear();
+            }
+            else tmp.push_back(line[i]);
+            if(i == line.length() - 1)
+                teacher_list[cnt].joining_date = tmp;
+        }
+        cnt++;
+    }
+    fptr.close();
+    return 1;
+}
+
+int add_new_student() {
+    clear_screen();
+    if(!student_count) get_total_number_of_student();
+    student stdnt_info;
+    cout << "\t\t\tAdd New Student" << endl;
+    stdnt_info.student_id = ++student_count;
+    cout << stdnt_info.student_id <<" ";
+    cout << "Admitted Date : " << get_date() << '\n';
+    cout << "Enter Student Name : ";
+    cin >> stdnt_info.student_name;
+    cout << "Enter Student's Father's Name : ";
+    cin >> stdnt_info.father_name;
+    cout << "Enter Student's Mother's Name : ";
+    cin >> stdnt_info.mother_name;
+    cout << "Enter Student's Date of Birth (DD-MM-YYYY) : ";
+    cin >> stdnt_info.dob;
+    cout << "Enter Guardian's Mobile Number : ";
+    cin >> stdnt_info.mobile_no;
+    cout << "Enter Admitted Class : ";
+    cin >> stdnt_info.admitted_class;
+    cout << "Enter Guide Teacher Name : ";
+    cin >> stdnt_info.guide_teacher;
+    transform(school_name.begin(), school_name.end(), school_name.begin(), ::toupper);
+    string file_name = school_name + "_student_list.txt";
+    ofstream fptr(file_name, ios::app);
+    fptr << stdnt_info.student_id << " " << stdnt_info.student_name << " " << stdnt_info.father_name << " " << stdnt_info.mother_name << " " << stdnt_info.dob << " " << stdnt_info.mobile_no << " " << stdnt_info.admitted_class << " " << stdnt_info.guide_teacher << " " << get_date() << "\n";
+    fptr.close();
+    return 1;
+}
+
+int add_new_teacher() {
+    clear_screen();
+    if(!teacher_count) get_total_number_of_teacher();
+    teacher teacher_info;
+    cout << "\t\t\tAdd New Teacher" << endl;
+    teacher_info.teacher_id = ++teacher_count;
+    cout << "Teacher ID : " << teacher_info.teacher_id << endl;
+    cout << "Joining Date : " << get_date() << '\n';
+    cout << "Enter Teacher Name : ";
+    cin >> teacher_info.teacher_name;
+    cout << "Enter Teacher's Mobile No : ";
+    cin >> teacher_info.mobile_no;
+    cout << "Enter Teacher's Date of Birth (DD-MM-YYYY) : ";
+    cin >> teacher_info.dob;
+    cout << "Enter Subject Name : ";
+    cin >> teacher_info.subject;
+    string file_name = school_name + "_teacher_list.txt";
+    ofstream fptr(file_name, ios::app);
+    fptr << teacher_info.teacher_id << " " << teacher_info.teacher_name << " " << teacher_info.mobile_no << " " << teacher_info.dob << " " << teacher_info.subject << " " << get_date() << endl;
+    fptr.close();
+    return 1;
+}
+
+void search() {
+    clear_screen();
+    cout << "\t\t\tSearch" << endl;
+    string name;
+    cout << "Enter Name to Search : ";
+    cin >> name;
+    vector<student> student_list(student_count), new_student_list;
+    show_student_list(student_list);
+    for(int i = 0; i < student_list.size(); i++)
+        if(student_list[i].student_name.find(name) != -1) {
+            new_student_list.push_back(student_list[i]);
+        }
+    if(new_student_list.size()) {
+        cout << "\t\t\tStudent\n" << endl;
+        print_student(new_student_list);
+    }
+
+    vector<teacher> teacher_list(teacher_count), new_teacher_list;
+    show_teacher_list(teacher_list);
+    for(int i = 0; i < teacher_list.size(); i++)
+        if(teacher_list[i].teacher_name.find(name) != -1) {
+            new_teacher_list.push_back(teacher_list[i]);
+        }
+    if(new_teacher_list.size()) {
+        cout << "\n\t\t\tTeacher\n" << endl;
+        print_teacher(new_teacher_list);
+    }
+
+    if(!new_teacher_list.size() && !new_student_list.size()) {
+        cout << "Not Found!\n";
+    }
+}
+
+void make_result() {
+    clear_screen();
+    cout << "\t\t\tCreate Result" << endl;
+    string class_res;
+    cout << "Enter Class : ";
+    cin >> class_res;
+    vector<student> student_list(student_count), new_student_list;
+    show_student_list(student_list);
+    for(int i = 0; i < student_list.size(); i++)
+        if(student_list[i].admitted_class == class_res)
+            new_student_list.push_back(student_list[i]);
+    cout << "Enter Grade Point for Subject (use double digit precision) : " << teacher_subject << '\n';
+    vector<result> res;
+    if(new_student_list.size()) {
+        for(int i = 0; i < new_student_list.size(); i++) {
+            string gpa;
+            cout << new_student_list[i].student_name << " : ";
+            cin >> gpa;
+            result tmp_res = {new_student_list[i].student_id, new_student_list[i].student_name, gpa, teacher_subject, new_student_list[i].guide_teacher};
+            res.push_back(tmp_res);
+        }
+        ofstream fptr(school_name + "_result_class_" + class_res + ".txt", ios::app);
+        for (auto &r : res)
+            fptr << r.student_id << " " << r.student_name << " " << r.grade_point << " " << r.subject << " " << r.guide_teacher << endl;
+        cout << "Result Added Successful!\n";
+        fptr.close();
+    }
+    else {
+        cout << "No Students Found in the Class!\n";
+    }
+}
+
+void show_result() {
+    clear_screen();
+    int failed = 0;
+    cout << "\t\t\tShow Result" << endl;
+    string class_res;
+    cout << "Enter Class : ";
+    cin >> class_res;
+    ifstream fptr(school_name + "_result_class_" + class_res + ".txt");
+    string line;
+    vector<result> res;
+    while(getline(fptr, line)) {
+        int cnt = 0;
+        string tmp_name, tmp_id, tmp_gpa, tmp_sub, tmp_gd_tchr;
+        for(int i = 0; i < line.length(); i++) {
+            if(line[i] == ' ' || line[i] == '\n')
+                cnt++;
+            else {
+                switch (cnt) {
+                    case 0:
+                        tmp_id.push_back(line[i]);
+                        break;
+                    case 1:
+                        tmp_name.push_back(line[i]);
+                        break;
+                    case 2:
+                        tmp_gpa.push_back(line[i]);
+                        break;
+                    case 3:
+                        tmp_sub.push_back(line[i]);
+                        break;
+                    case 4:
+                        tmp_gd_tchr.push_back(line[i]);
+                        break;
+                }
+            }
+        }
+        int id = stoi(tmp_id);
+        res.push_back({id, tmp_name, tmp_gpa, tmp_sub, tmp_gd_tchr});
+    }
+    cout << "\nResult of Class - " << class_res << '\n';
+    printf("%-20s%-20s%-6s%-20s\n", "Student's Name", "Subject", "GPA", "Guide Teacher");
+    string s(66, '-');
+    cout << s << '\n';
+    for(auto &r : res) {
+        if(r.grade_point == "0.00") failed++;
+        printf("%-20s%-20s%-6s%-20s\n", r.student_name.c_str(), r.subject.c_str(), r.grade_point.c_str(), r.guide_teacher.c_str());
+        cout << s << endl;
+    }
+    cout << "\nTotal Students : " << res.size() << "\nPassed : " << res.size() - failed << "\nFailed : " << failed << endl;
+}
+
+void school_overview(){
+    clear_screen();
+    cout << "\t\t\tSchool Overview\n" << endl;
+    vector<student> student_list(student_count);
+    show_student_list(student_list);
+    map<string, int> student_class, teacher_subject;
+    for(auto &stdnt : student_list)
+        student_class[stdnt.admitted_class]++;
+
+    vector<teacher> teacher_list(teacher_count);
+    show_teacher_list(teacher_list);
+    for(auto &tchr : teacher_list)
+        teacher_subject[tchr.subject]++;
+
+    cout << "\t\t\tStudent Overview\n" << "Total Number of Students : " << student_count << '\n' << "Classwise Student Number : \n";
+    for(auto it = student_class.begin(); it != student_class.end(); it++)
+        cout << "Class - " << it -> first << " : " << it -> second << '\n';
+
+    cout << "\n\t\t\tTeacher Overview\n" << "Total Number of Teachers : " << teacher_count << '\n' << "Subjectwise Teacher Number : \n";
+    for(auto it = teacher_subject.begin(); it != teacher_subject.end(); it++)
+        cout << it -> first << " : " << it -> second << '\n';
+}
+
+int login() {
+    int is_matched = 0;
+    string username, password, filename;
+    cout << "\t\t\tLogin" << endl;
+    filename = "login_info.txt";
+    cout << "Enter your school username : ";
+    cin >> username;
+    cout << "Enter your password : ";
+    cin >> password;
+    ifstream fptr(filename);
+    if(fptr.fail()) return 0;
+    string line;
+    while (getline(fptr, line)) {
+        string t_name, t_username, t_password;
+        int cnt = 0;
+        for(int i = 0; i < line.length(); i++) {
+            if(line[i] == ' ' || line[i] == '\n') cnt++;
+            else {
+                if(cnt == 0)
+                    t_name.push_back(line[i]);
+                else if(cnt == 1)
+                    t_username.push_back(line[i]);
+                else if(cnt == 2)
+                    t_password.push_back(line[i]);
+            }
+        }
+        if(t_username == username && t_password == password) {
+            is_matched = 1;
+            school_name = t_name;
+            transform(school_name.begin(), school_name.end(), school_name.begin(), ::toupper);
+        }
+    }
+    fptr.close();
+    return is_matched;
+}
+
+int login_as_teacher() {
+    bool name_matched = 0;
+    string scl_name, filename, username, subject, dob, mobile_no;
+    map<string, string> mp;
+    cout << "Enter your school name : ";
+    cin >> scl_name;
+    transform(scl_name.begin(), scl_name.end(), scl_name.begin(), ::toupper);
+    filename = scl_name + "_teacher_list.txt";
+    cout << "Enter your Name (Case Sensitive) : ";
+    cin >> username;
+    ifstream fptr(filename);
+    if(fptr.fail()) return 0;
+    string line;
+    while(getline(fptr, line)) {
+        int cnt = 0;
+        string tmp_name;
+        for(int i = 0; i < line.length(); i++) {
+            if(line[i] == ' ' || line[i] == '\n') {
+                if(tmp_name == username && !name_matched)
+                    name_matched = 1;
+                cnt++;
+            }
+            else {
+                if(cnt == 1)
+                    tmp_name.push_back(line[i]);
+                else if(cnt == 3 && tmp_name == username)
+                    dob.push_back(line[i]);
+                else if(cnt == 2 && tmp_name == username)
+                    mobile_no.push_back(line[i]);
+                else if(cnt == 4 && tmp_name == username) {
+                    subject.push_back(line[i]);
+                }
+            }
+        }
+    }
+    if(!name_matched)
+        return 0;
+    string tmp_dob, tmp_mobile;
+    cout << "Enter you Date of Birth (DD-MM-YYYY) : ";
+    cin >> tmp_dob;
+    cout << "Enter Mobile No : ";
+    cin >> tmp_mobile;
+    if(tmp_dob != dob || tmp_mobile != mobile_no)
+        return 0;
+    fptr.close();
+    transform(scl_name.begin(), scl_name.end(), scl_name.begin(), ::toupper);
+    school_name = scl_name; teacher_user_name = username; teacher_subject = subject;
+    return 1;
+}
+
+void registration() {
+    string name, username, password;
+    cout << "Enter your school Name : ";
+    cin >> name;
+    cout << "Enter your school username : ";
+    cin >> username;
+    cout << "Enter your password : ";
+    cin >> password;
+    ofstream fptr("login_info.txt", ios::app);
+    fptr << name << " " << username << " " << password << endl;
+    fptr.close();
+}
+
+void guided_student_list() {
+    clear_screen();
+    cout << "\t\t\tGuided Students List of " << teacher_user_name << '\n' << endl;
+    vector<student> student_list(student_count), new_student_list;
+    show_student_list(student_list);
+    for(int i = 0; i < student_list.size(); i++)
+        if(student_list[i].guide_teacher == teacher_user_name)
+            new_student_list.push_back(student_list[i]);
+    print_student(new_student_list);
+}
+
+int pop_up() {
+    cout << "\n1. Go Back to Main Menu" << endl;
+    int slctd_optn;
+    cout << "Select a option : ";
+    cin >> slctd_optn;
+    return -1;
+}
+
+int main() {
+    int main_menu_opt = -1;
+    int is_logged_in = 0;
+    while(!is_logged_in) {
+        if(main_menu_opt == -1) {
+            cout << "\t\t\tWelcome to School Management System" << endl;
+            cout << "\n1. Login as Admin\n2. Login as Teacher\n3. Registration\n0. EXIT\n";
+            cout << "\nSelect a option : ";
+        }
+        cin >> main_menu_opt;
+        if(main_menu_opt == 0) break;
+        switch (main_menu_opt) {
+            case 1:
+                clear_screen();
+                is_logged_in = login();
+                if(!is_logged_in) {
+                    clear_screen();
+                    cout << "Wrong Credentials. Login Again." << endl;
+                    main_menu_opt = -1;
+                }
+                break;
+            case 2:
+                clear_screen();
+                is_logged_in = login_as_teacher();
+                if(!is_logged_in) {
+                    clear_screen();
+                    cout << "Wrong Credentials. Login Again." << endl;
+                    main_menu_opt = -1;
+                }
+                break;
+            case 3:
+                clear_screen();
+                registration();
+                clear_screen();
+                cout << "Registration Successful, now Login Please." << endl;
+                is_logged_in = login();
+                if(!is_logged_in) {
+                    clear_screen();
+                    cout << "Wrong Credentials. Login Again." << endl;
+                    main_menu_opt = -1;
+                }
+                break;
+            default:
+                clear_screen();
+                cout << "Wrong Value." << endl;
+                main_menu_opt = -1;
+        }
+    }
+
+    int opt = -1;
+    bool has_student = 0, has_teacher = 0;
+
+    while(is_logged_in && main_menu_opt == 1 || main_menu_opt == 3) {
+        get_total_number_of_student();
+        get_total_number_of_teacher();
+        vector<student> student_list(student_count);
+        vector<teacher> teacher_list(teacher_count);
+        if(opt == -1) {
+            clear_screen();
+            cout << "\t\t\tWelcome to " << school_name << endl;
+            cout << "\n1. Add New Student\n2. Add New Teacher\n3. Search\n4. Show Student List\n5. Show Teacher List\n6. Show Result\n7. School Overview\n0. EXIT\n";
+            cout << "\nSelect a option : ";
+        }
+        cin >> opt;
+        if(opt == 0) break;
+        switch (opt) {
+            case 1:
+                if(add_new_student()) opt = -1;
+                else opt = 1;
+                break;
+            case 2:
+                if(add_new_teacher()) opt = -1;
+                else opt = 2;
+                break;
+            case 3:
+                search();
+                opt = pop_up();
+                break;
+            case 4:
+                has_student = show_student_list(student_list);
+                if(!has_student) {
+                    clear_screen();
+                    cout << "No Student List Found!" << endl;
+                }
+                else {
+                    clear_screen();
+                    cout << "\t\t\tStudent Information\n" << endl;
+                    print_student(student_list);
+                }
+                opt = pop_up();
+                break;
+            case 5:
+                has_teacher = show_teacher_list(teacher_list);
+                if(!has_teacher) {
+                    clear_screen();
+                    cout << "No Teacher List Found!" << endl;
+                }
+                else {
+                    clear_screen();
+                    cout << "\t\t\tTeacher Information\n" << endl;
+                    print_teacher(teacher_list);
+                }
+                opt = pop_up();
+                break;
+            case 6:
+                show_result();
+                opt = pop_up();
+                break;
+            case 7:
+                school_overview();
+                opt = pop_up();
+                break;
+            default:
+                opt = -1;
+        }
+    }
+
+    while(is_logged_in && main_menu_opt == 2) {
+        if(opt == -1) {
+            clear_screen();
+            cout << "\t\t\tWelcome to " << school_name << endl;
+            cout << "\n1. Guided Student List\n2. Make Result\n3. Show Result\n0. EXIT\n";
+            cout << "\nSelect a option : ";
+        }
+        cin >> opt;
+        if(opt == 0) break;
+        get_total_number_of_student();
+        switch (opt) {
+            case 1:
+                guided_student_list();
+                break;
+            case 2:
+                make_result();
+                break;
+            case 3:
+                show_result();
+                break;
+            default:
+                opt = -1;
+        }
+        opt = pop_up();
+    }
+    return 0;
+}
+
